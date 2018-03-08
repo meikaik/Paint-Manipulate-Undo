@@ -1,11 +1,19 @@
 # super simple makefile
 # call it using 'make NAME=name_of_code_file_without_extension'
 # (assumes a .java extension)
-NAME = "Main"
+
+NAME = "A3Basic"
 SRC = "src"
+OUT = "out"
 
 all:
-	javac *.java
+	@echo "Compiling..."
+	[ -d $(OUT) ] || mkdir $(OUT)
+	javac -cp $(SRC) -d $(OUT) $(SRC)/*.java
+
 run: all
 	@echo "Running..."
-	java A3Basic
+	java -cp $(OUT) $(NAME)
+
+clean:
+	rm -rf $(OUT)/*.class
