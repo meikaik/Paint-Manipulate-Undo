@@ -21,6 +21,19 @@ public class CanvasView extends JPanel implements Observer {
                 super.mousePressed(e);
                 lastMouse = e.getPoint();
                 startMouse = e.getPoint();
+
+                for(ShapeModel shape : model.getShapes()) {
+                        shape.selected = false;
+                }
+
+                for(ShapeModel shape : model.getShapes()) {
+                    if (startMouse != null && shape.hitTest(startMouse)) {
+                        shape.selected = true;
+                        repaint();
+                        System.out.println("Hit" + shape);
+                    }
+                }
+
             }
 
             @Override
@@ -70,6 +83,9 @@ public class CanvasView extends JPanel implements Observer {
 
         for(ShapeModel shape : model.getShapes()) {
             g2.draw(shape.getShape());
+            if (shape.selected) {
+                drawSelect(g2, shape);
+            }
         }
     }
 
@@ -82,5 +98,28 @@ public class CanvasView extends JPanel implements Observer {
         g2.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         g2.draw(new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse).getShape());
+    }
+
+    private void drawSelect(Graphics2D g2, ShapeModel shape) {
+        int yMin = Math.min(shape.startPoint.y, shape.endPoint.y);
+        int yMax = Math.max(shape.startPoint.y, shape.endPoint.y);
+        int xMax = Math.max(shape.startPoint.x, shape.endPoint.x);
+        Point midpoint = shape.getMidPoint();
+        g2.setColor(Color.BLUE);
+        Shape s = new ShapeModel.ShapeFactory().getShape(
+                ShapeModel.ShapeType.Ellipse,
+                new Point(midpoint.x - 3, yMin - 15),
+                new Point(midpoint.x + 2, yMin - 10)
+        ).getShape();
+        g2.draw(s);
+        g2.fill(s);
+        s = new ShapeModel.ShapeFactory().getShape(
+                ShapeModel.ShapeType.Rectangle,
+                new Point(xMax -  3, yMax - 2),
+                new Point(xMax +  2, yMax + 3)
+        ).getShape();
+        g2.draw(s);
+        g2.fill(s);
+        g2.setColor(new Color(66,66,66));
     }
 }

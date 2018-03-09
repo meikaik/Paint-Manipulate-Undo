@@ -4,8 +4,18 @@ import java.lang.reflect.Constructor;
 
 public class ShapeModel {
     Shape shape;
+    Point startPoint;
+    Point endPoint;
+    boolean selected = false;
 
-    public ShapeModel(Point startPoint, Point endPoint) {    }
+    public ShapeModel(Point sp, Point ep) {
+        startPoint = sp;
+        endPoint = ep;
+    }
+
+    public Point getMidPoint() {
+        return new Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2);
+    }
 
     public Shape getShape() {
         return shape;
