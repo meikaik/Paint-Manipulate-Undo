@@ -8,4 +8,14 @@ public class EllipseModel extends ShapeModel {
         rect.add(endPoint);
         this.shape = new Ellipse2D.Double(rect.x, rect.y, rect.width, rect.height);
     }
+
+    @Override
+    public void reset(int dx, int dy) {
+        int height = endPoint.y - startPoint.y;
+        int width = endPoint.x - startPoint.x;
+        ((Ellipse2D)this.shape).setFrame(startPoint.x, startPoint.y, width + dx, height + dy);
+        endPoint.x += dx;
+        endPoint.y += dy;
+    }
+
 }

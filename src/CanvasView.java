@@ -13,6 +13,8 @@ public class CanvasView extends JPanel implements Observer {
     private Point2D lastMouse;
     private Point2D startMouse;
     private boolean selectMode = false;
+    private boolean hitRotate = false;
+    private boolean hitScale = false;
 
 
     public CanvasView(DrawingModel model) {
@@ -28,7 +30,22 @@ public class CanvasView extends JPanel implements Observer {
                 startMouse = e.getPoint();
 
                 for(ShapeModel shape : model.getShapes()) {
+                    if (shape.selected) {
+                        if (startMouse != null && shape.rotateHitTest(startMouse)) {
+                            System.out.println("Hit rotate!");
+                            selectMode = true;
+                            hitRotate = true;
+                        } else if (startMouse != null && shape.scaleHitTest(startMouse)) {
+                            System.out.println("Hit scale!");
+                            selectMode = true;
+                            hitScale = true;
+                        }
+                    }
+                }
+                if (!hitRotate && !hitScale) {
+                    for (ShapeModel shape : model.getShapes()) {
                         shape.selected = false;
+                    }
                 }
 
                 for(ShapeModel shape : model.getShapes()) {
@@ -39,16 +56,20 @@ public class CanvasView extends JPanel implements Observer {
                         selectMode = true;
                     }
                 }
-
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
                 for(ShapeModel shape : model.getShapes()) {
-                    if (startMouse != null && shape.selected) {
+                    if (startMouse != null && shape.selected && hitScale) {
+                        shape.reset((int)(e.getX() - lastMouse.getX()), (int)(e.getY() - lastMouse.getY()));
+                    } else if (startMouse != null && shape.selected && hitRotate) {
+                        shape.rotateShape((int) (e.getX() - lastMouse.getX()));
+                    } else if (startMouse != null && shape.selected) {
                         shape.translate((int)(e.getX() - lastMouse.getX()), (int)(e.getY() - lastMouse.getY()));
                     }
+
                 }
                 lastMouse = e.getPoint();
                 repaint();
@@ -64,7 +85,8 @@ public class CanvasView extends JPanel implements Observer {
                 }
 
                 selectMode = false;
-
+                hitRotate = false;
+                hitScale = false;
                 startMouse = null;
                 lastMouse = null;
             }
@@ -122,23 +144,11 @@ public class CanvasView extends JPanel implements Observer {
     }
 
     private void drawSelect(Graphics2D g2, ShapeModel shape) {
-        int yMin = Math.min(shape.startPoint.y, shape.endPoint.y);
-        int yMax = Math.max(shape.startPoint.y, shape.endPoint.y);
-        int xMax = Math.max(shape.startPoint.x, shape.endPoint.x);
-        Point midpoint = shape.getMidPoint();
         g2.setColor(Color.BLUE);
-        Shape s = new ShapeModel.ShapeFactory().getShape(
-                ShapeModel.ShapeType.Ellipse,
-                new Point(midpoint.x - 3, yMin - 15),
-                new Point(midpoint.x + 2, yMin - 10)
-        ).getShape();
+        Shape s = shape.rotateHandle();
         g2.draw(s);
         g2.fill(s);
-        s = new ShapeModel.ShapeFactory().getShape(
-                ShapeModel.ShapeType.Rectangle,
-                new Point(xMax -  3, yMax - 2),
-                new Point(xMax +  2, yMax + 3)
-        ).getShape();
+        s = shape.scaleHandle();
         g2.draw(s);
         g2.fill(s);
         g2.setColor(new Color(66,66,66));

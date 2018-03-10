@@ -10,4 +10,14 @@ public class RectangleModel extends ShapeModel {
 
         this.shape = rect;
     }
+
+    @Override
+    public void reset(int dx, int dy) {
+        int height = endPoint.y - startPoint.y;
+        int width = endPoint.x - startPoint.x;
+        ((Rectangle2D)this.shape).setRect(startPoint.x, startPoint.y, width + dx, height + dy);
+        endPoint.x += dx;
+        endPoint.y += dy;
+    }
+
 }

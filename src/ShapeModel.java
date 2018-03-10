@@ -32,10 +32,51 @@ public class ShapeModel {
         translateY += dy;
     }
 
-    // You will need to change the hittest to account for transformations.
-    public boolean hitTest(Point2D p) {
-        Point mouseTransformed = new Point();
+    public void reset(int dx, int dy) { }
 
+    public Shape rotateHandle() {
+        int yMin = Math.min(this.startPoint.y, this.endPoint.y);
+        Point midpoint = this.getMidPoint();
+        Shape s = new ShapeModel.ShapeFactory().getShape(
+                ShapeModel.ShapeType.Ellipse,
+                new Point(midpoint.x - 3, yMin - 15),
+                new Point(midpoint.x + 2, yMin - 10)
+        ).getShape();
+        return s;
+    }
+
+    public void rotateShape(int rotatee) {
+        rotate += rotatee;
+    }
+
+    public Shape scaleHandle() {
+        int yMax = Math.max(this.startPoint.y, this.endPoint.y);
+        int xMax = Math.max(this.startPoint.x, this.endPoint.x);
+        Shape s = new ShapeModel.ShapeFactory().getShape(
+                ShapeModel.ShapeType.Rectangle,
+                new Point(xMax -  3, yMax - 2),
+                new Point(xMax +  2, yMax + 3)
+        ).getShape();
+        return s;
+    }
+
+    public boolean rotateHitTest(Point2D p) {
+        Point mouseTransformed = transformMouse(p);
+        return rotateHandle().contains(mouseTransformed);
+    }
+
+    public boolean scaleHitTest(Point2D p) {
+        Point mouseTransformed = transformMouse(p);
+        return scaleHandle().contains(mouseTransformed);
+    }
+
+    public boolean hitTest(Point2D p) {
+        Point mouseTransformed = transformMouse(p);
+        return this.getShape().contains(mouseTransformed);
+    }
+
+    public Point transformMouse(Point2D p) {
+        Point mouseTransformed = new Point();
         try {
             AffineTransform newAffine = this.generateAffine(null);
             AffineTransform IAT = newAffine.createInverse();
@@ -43,7 +84,7 @@ public class ShapeModel {
         } catch (NoninvertibleTransformException e) {
             e.printStackTrace();
         }
-        return this.getShape().contains(mouseTransformed);
+        return mouseTransformed;
     }
 
     public AffineTransform generateAffine(AffineTransform affine) {
