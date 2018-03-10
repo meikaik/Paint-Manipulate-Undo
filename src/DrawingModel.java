@@ -18,6 +18,8 @@ public class DrawingModel extends Observable {
 
     public DrawingModel() { }
 
+    public void endEdit() { }
+
     public List<ShapeModel> getShapes() {
         return Collections.unmodifiableList(shapes);
     }

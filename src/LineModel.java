@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
@@ -19,7 +21,17 @@ public class LineModel extends ShapeModel {
 
     @Override
     public boolean hitTest(Point2D p) {
-        return pointToLineDistance(a,b,(Point) p) < 10;
+        Point mouseTransformed = new Point();
+
+        try {
+            AffineTransform newAffine = this.generateAffine(null);
+            AffineTransform IAT = newAffine.createInverse();
+            IAT.transform(p, mouseTransformed);
+        } catch (NoninvertibleTransformException e) {
+            e.printStackTrace();
+        }
+
+        return pointToLineDistance(a,b, mouseTransformed) < 10;
     }
 
     public double pointToLineDistance(Point A, Point B, Point P) {

@@ -2,18 +2,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Observable;
 import java.util.Observer;
 
 public class CanvasView extends JPanel implements Observer {
-    DrawingModel model;
-    Point2D lastMouse;
-    Point2D startMouse;
+
+    private DrawingModel model;
+    private Point2D lastMouse;
+    private Point2D startMouse;
+    private boolean selectMode = false;
+
 
     public CanvasView(DrawingModel model) {
         super();
         this.model = model;
+
 
         MouseAdapter mouseListener = new MouseAdapter() {
             @Override
@@ -31,6 +36,7 @@ public class CanvasView extends JPanel implements Observer {
                         shape.selected = true;
                         repaint();
                         System.out.println("Hit" + shape);
+                        selectMode = true;
                     }
                 }
 
@@ -39,6 +45,11 @@ public class CanvasView extends JPanel implements Observer {
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
+                for(ShapeModel shape : model.getShapes()) {
+                    if (startMouse != null && shape.selected) {
+                        shape.translate((int)(e.getX() - lastMouse.getX()), (int)(e.getY() - lastMouse.getY()));
+                    }
+                }
                 lastMouse = e.getPoint();
                 repaint();
             }
@@ -47,8 +58,12 @@ public class CanvasView extends JPanel implements Observer {
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
 
-                ShapeModel shape = new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
-                model.addShape(shape);
+                if (!selectMode) {
+                    ShapeModel shape = new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
+                    model.addShape(shape);
+                }
+
+                selectMode = false;
 
                 startMouse = null;
                 lastMouse = null;
@@ -82,15 +97,21 @@ public class CanvasView extends JPanel implements Observer {
         g2.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         for(ShapeModel shape : model.getShapes()) {
-            g2.draw(shape.getShape());
+            AffineTransform oldAffine = g2.getTransform();
+            AffineTransform newAffine = shape.generateAffine(oldAffine);
+            g2.setTransform(newAffine);
             if (shape.selected) {
                 drawSelect(g2, shape);
             }
+            g2.setColor(new Color(66,66,66));
+            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g2.draw(shape.getShape());
+            g2.setTransform(oldAffine);
         }
     }
 
     private void drawCurrentShape(Graphics2D g2) {
-        if (startMouse == null) {
+        if (selectMode || startMouse == null) {
             return;
         }
 
