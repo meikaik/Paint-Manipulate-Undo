@@ -11,12 +11,28 @@ public class ShapeModel {
     Point endPoint;
     int translateX = 0, translateY = 0, rotate = 0;
     double scaleX = 1, scaleY = 1;
+    ShapeType type = null;
 
     boolean selected = false;
 
     public ShapeModel(Point sp, Point ep) {
         startPoint = sp;
         endPoint = ep;
+    }
+
+    public ShapeModel duplicate() {
+        Point sp = this.startPoint;
+        Point ep = this.endPoint;
+        ShapeModel s = new ShapeModel.ShapeFactory().getShape(
+                type, new Point(sp.x + 10, sp.y + 10), new Point(ep.x + 10, ep.y + 10));
+        s.type = this.type;
+        s.translateX = this.translateX;
+        s.translateY = this.translateY;
+        s.rotate = this.rotate;
+        s.scaleX = this.scaleX;
+        s.scaleY = this.scaleY;
+        s.selected = true;
+        return s;
     }
 
     public Point getMidPoint() {

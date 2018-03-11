@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
@@ -14,6 +15,23 @@ public class ToolbarView extends JToolBar implements Observer {
         super();
         this.model = model;
         model.addObserver(this);
+
+        duplicate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Duplicate button pressed!");
+                ShapeModel selected = null;
+                for(ShapeModel shape : model.getShapes()) {
+                    if (shape.selected) {
+                        shape.selected = false;
+                        selected = shape;
+                    }
+                }
+                if (selected != null) {
+                    model.addShape(selected.duplicate());
+                }
+            }
+        });
 
         setFloatable(false);
         add(undo);

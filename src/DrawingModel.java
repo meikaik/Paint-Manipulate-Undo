@@ -28,5 +28,6 @@ public class DrawingModel extends Observable {
         this.shapes.add(shape);
         this.setChanged();
         this.notifyObservers();
+        System.out.println("added new shape!");
     }
 }

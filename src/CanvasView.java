@@ -4,6 +4,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -29,7 +32,10 @@ public class CanvasView extends JPanel implements Observer {
                 lastMouse = e.getPoint();
                 startMouse = e.getPoint();
 
-                for(ShapeModel shape : model.getShapes()) {
+                List<ShapeModel> shapesArray = model.getShapes();
+                ListIterator<ShapeModel> it = shapesArray.listIterator(shapesArray.size());
+                while(it.hasPrevious()) {
+                    ShapeModel shape = it.previous();
                     if (shape.selected) {
                         if (startMouse != null && shape.rotateHitTest(startMouse)) {
                             System.out.println("Hit rotate!");
@@ -40,20 +46,25 @@ public class CanvasView extends JPanel implements Observer {
                             selectMode = true;
                             hitScale = true;
                         }
+                        break;
                     }
                 }
+
                 if (!hitRotate && !hitScale) {
                     for (ShapeModel shape : model.getShapes()) {
                         shape.selected = false;
                     }
                 }
 
-                for(ShapeModel shape : model.getShapes()) {
+                ListIterator<ShapeModel> itNew = shapesArray.listIterator(shapesArray.size());
+                while(itNew.hasPrevious()) {
+                    ShapeModel shape = itNew.previous();
                     if (startMouse != null && shape.hitTest(startMouse)) {
                         shape.selected = true;
                         repaint();
                         System.out.println("Hit" + shape);
                         selectMode = true;
+                        break;
                     }
                 }
             }
@@ -81,6 +92,7 @@ public class CanvasView extends JPanel implements Observer {
 
                 if (!selectMode) {
                     ShapeModel shape = new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
+                    shape.type = model.getShape();
                     model.addShape(shape);
                 }
 
