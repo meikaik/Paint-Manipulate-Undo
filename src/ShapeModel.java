@@ -80,6 +80,28 @@ public class ShapeModel {
         return s;
     }
 
+    public Shape XScaleHandle() {
+        Point midpoint = this.getMidPoint();
+        int xMax = Math.max(this.startPoint.x, this.endPoint.x);
+        Shape s = new ShapeModel.ShapeFactory().getShape(
+                ShapeModel.ShapeType.Rectangle,
+                new Point(xMax -  5, midpoint.y - 5),
+                new Point(xMax +  5, midpoint.y + 5)
+        ).getShape();
+        return s;
+    }
+
+    public Shape YScaleHandle() {
+        Point midpoint = this.getMidPoint();
+        int yMax = Math.max(this.startPoint.y, this.endPoint.y);
+        Shape s = new ShapeModel.ShapeFactory().getShape(
+                ShapeModel.ShapeType.Rectangle,
+                new Point(midpoint.x -  5, yMax - 5),
+                new Point(midpoint.x +  5, yMax + 5)
+        ).getShape();
+        return s;
+    }
+
     public boolean rotateHitTest(Point2D p) {
         Point mouseTransformed = transformMouse(p);
         return rotateHandle().contains(mouseTransformed);
@@ -88,6 +110,16 @@ public class ShapeModel {
     public boolean scaleHitTest(Point2D p) {
         Point mouseTransformed = transformMouse(p);
         return scaleHandle().contains(mouseTransformed);
+    }
+
+    public boolean XScaleHitTest(Point2D p) {
+        Point mouseTransformed = transformMouse(p);
+        return XScaleHandle().contains(mouseTransformed);
+    }
+
+    public boolean YScaleHitTest(Point2D p) {
+        Point mouseTransformed = transformMouse(p);
+        return YScaleHandle().contains(mouseTransformed);
     }
 
     public boolean hitTest(Point2D p) {

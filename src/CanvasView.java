@@ -18,6 +18,8 @@ public class CanvasView extends JPanel implements Observer {
     private boolean selectMode = false;
     private boolean hitRotate = false;
     private boolean hitScale = false;
+    private boolean hitXScale = false;
+    private boolean hitYScale = false;
     private boolean needStore = false;
 
 
@@ -45,12 +47,20 @@ public class CanvasView extends JPanel implements Observer {
                             System.out.println("Hit scale!");
                             selectMode = true;
                             hitScale = true;
+                        } else if (startMouse != null && shape.XScaleHitTest(startMouse)) {
+                            System.out.println("Hit X scale!");
+                            selectMode = true;
+                            hitXScale = true;
+                        } else if (startMouse != null && shape.YScaleHitTest(startMouse)) {
+                            System.out.println("Hit Y scale!");
+                            selectMode = true;
+                            hitYScale = true;
                         }
                         break;
                     }
                 }
 
-                if (!hitRotate && !hitScale) {
+                if (!hitRotate && !hitScale && !hitXScale && !hitYScale) {
                     for (ShapeModel shape : model.getShapes()) {
                         shape.selected = false;
                     }
@@ -82,7 +92,14 @@ public class CanvasView extends JPanel implements Observer {
                     } else if (startMouse != null && shape.selected && hitRotate) {
                         needStore = true;
                         shape.rotateShape((int) (e.getX() - lastMouse.getX()));
-                    } else if (startMouse != null && shape.selected) {
+                    } else if (startMouse != null && shape.selected && hitXScale) {
+                        needStore = true;
+                        shape.reset((int)(e.getX() - lastMouse.getX()), 0);
+                    } else if (startMouse != null && shape.selected && hitYScale) {
+                        needStore = true;
+                        shape.reset(0, (int)(e.getY() - lastMouse.getY()));
+                    }
+                    else if (startMouse != null && shape.selected) {
                         needStore = true;
                         shape.translate((int)(e.getX() - lastMouse.getX()), (int)(e.getY() - lastMouse.getY()));
                     }
@@ -99,6 +116,7 @@ public class CanvasView extends JPanel implements Observer {
                 if (!selectMode) {
                     ShapeModel shape = new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
                     shape.type = model.getShape();
+                    shape.selected = true;
                     model.addShape(shape);
                     model.modified();
                 }
@@ -115,6 +133,8 @@ public class CanvasView extends JPanel implements Observer {
                 selectMode = false;
                 hitRotate = false;
                 hitScale = false;
+                hitXScale = false;
+                hitYScale = false;
                 startMouse = null;
                 lastMouse = null;
             }
@@ -179,6 +199,12 @@ public class CanvasView extends JPanel implements Observer {
         g2.draw(s);
         g2.fill(s);
         s = shape.scaleHandle();
+        g2.draw(s);
+        g2.fill(s);
+        s = shape.XScaleHandle();
+        g2.draw(s);
+        g2.fill(s);
+        s = shape.YScaleHandle();
         g2.draw(s);
         g2.fill(s);
         g2.setColor(new Color(66,66,66));
