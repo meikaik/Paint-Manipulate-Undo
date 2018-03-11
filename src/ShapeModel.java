@@ -10,11 +10,10 @@ public class ShapeModel {
     Point startPoint;
     Point endPoint;
     int translateX = 0, translateY = 0, rotate = 0;
-    double scaleX = 1, scaleY = 1;
     ShapeType type = null;
 
     int beforeTranslateX = 0, beforeTranslateY = 0, beforeRotate = 0;
-    double beforeScaleX = 1, beforeScaleY = 1;
+    Point beforeEndPoint;
 
     boolean selected = false;
 
@@ -23,6 +22,7 @@ public class ShapeModel {
     public ShapeModel(Point sp, Point ep) {
         startPoint = sp;
         endPoint = ep;
+        beforeEndPoint = ep;
     }
 
     public ShapeModel duplicate() {
@@ -33,8 +33,6 @@ public class ShapeModel {
         s.translateX = this.translateX;
         s.translateY = this.translateY;
         s.rotate = this.rotate;
-        s.scaleX = this.scaleX;
-        s.scaleY = this.scaleY;
         s.selected = true;
         s.type = this.type;
         return s;
@@ -53,15 +51,16 @@ public class ShapeModel {
         translateY += dy;
     }
 
-    public void reset(int dx, int dy) { }
+    public void reset(int dx, int dy) {
+    }
 
     public Shape rotateHandle() {
         int yMin = Math.min(this.startPoint.y, this.endPoint.y);
         Point midpoint = this.getMidPoint();
         Shape s = new ShapeModel.ShapeFactory().getShape(
                 ShapeModel.ShapeType.Ellipse,
-                new Point(midpoint.x - 3, yMin - 15),
-                new Point(midpoint.x + 2, yMin - 10)
+                new Point(midpoint.x - 5, yMin - 20),
+                new Point(midpoint.x + 5, yMin - 10)
         ).getShape();
         return s;
     }
@@ -75,8 +74,8 @@ public class ShapeModel {
         int xMax = Math.max(this.startPoint.x, this.endPoint.x);
         Shape s = new ShapeModel.ShapeFactory().getShape(
                 ShapeModel.ShapeType.Rectangle,
-                new Point(xMax -  3, yMax - 2),
-                new Point(xMax +  2, yMax + 3)
+                new Point(xMax -  5, yMax - 5),
+                new Point(xMax +  5, yMax + 5)
         ).getShape();
         return s;
     }
@@ -119,7 +118,6 @@ public class ShapeModel {
         affineNew.translate(translateX, translateY);
         affineNew.translate(midpoint.x, midpoint.y);
         affineNew.rotate(Math.toRadians(rotate));
-        affineNew.scale(scaleX, scaleY);
         affineNew.translate(-(midpoint.x), -(midpoint.y));
         return affineNew;
     }

@@ -18,7 +18,6 @@ public class CanvasView extends JPanel implements Observer {
     private boolean selectMode = false;
     private boolean hitRotate = false;
     private boolean hitScale = false;
-    private ShapeModel selectedShape = null;
     private boolean needStore = false;
 
 
@@ -37,7 +36,7 @@ public class CanvasView extends JPanel implements Observer {
                 ListIterator<ShapeModel> it = shapesArray.listIterator(shapesArray.size());
                 while(it.hasPrevious()) {
                     ShapeModel shape = it.previous();
-                    if (shape.selected) {
+                    if (!shape.invisible && shape.selected) {
                         if (startMouse != null && shape.rotateHitTest(startMouse)) {
                             System.out.println("Hit rotate!");
                             selectMode = true;
@@ -51,19 +50,24 @@ public class CanvasView extends JPanel implements Observer {
                     }
                 }
 
+                if (!hitRotate && !hitScale) {
+                    for (ShapeModel shape : model.getShapes()) {
+                        shape.selected = false;
+                    }
+                } else {
+                    return;
+                }
+
                 ListIterator<ShapeModel> itNew = shapesArray.listIterator(shapesArray.size());
                 while(itNew.hasPrevious()) {
                     ShapeModel shape = itNew.previous();
-                    if (startMouse != null && shape.hitTest(startMouse)) {
-                        selectedShape = shape;
+                    if (!shape.invisible && startMouse != null && shape.hitTest(startMouse)) {
                         shape.selected = true;
                         model.modified();
                         repaint();
                         System.out.println("Hit" + shape);
                         selectMode = true;
-                    }
-                    else if (!hitRotate && !hitScale){
-                        shape.selected = false;
+                        break;
                     }
                 }
             }

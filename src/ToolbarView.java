@@ -70,7 +70,7 @@ public class ToolbarView extends JToolBar implements Observer {
     public void update(Observable o, Object arg) {
         undo.setEnabled(model.canUndo());
         redo.setEnabled(model.canRedo());
-        duplicate.setEnabled(model.duplicatable());
+        duplicate.setEnabled(model.isDuplicatable());
 
         System.out.println("Notified");
     }
