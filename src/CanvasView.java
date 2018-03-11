@@ -4,11 +4,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Observable;
 import java.util.Observer;
+
 
 public class CanvasView extends JPanel implements Observer {
 
@@ -18,12 +18,13 @@ public class CanvasView extends JPanel implements Observer {
     private boolean selectMode = false;
     private boolean hitRotate = false;
     private boolean hitScale = false;
+    private ShapeModel selectedShape = null;
+    private boolean needStore = false;
 
 
     public CanvasView(DrawingModel model) {
         super();
         this.model = model;
-
 
         MouseAdapter mouseListener = new MouseAdapter() {
             @Override
@@ -50,21 +51,19 @@ public class CanvasView extends JPanel implements Observer {
                     }
                 }
 
-                if (!hitRotate && !hitScale) {
-                    for (ShapeModel shape : model.getShapes()) {
-                        shape.selected = false;
-                    }
-                }
-
                 ListIterator<ShapeModel> itNew = shapesArray.listIterator(shapesArray.size());
                 while(itNew.hasPrevious()) {
                     ShapeModel shape = itNew.previous();
                     if (startMouse != null && shape.hitTest(startMouse)) {
+                        selectedShape = shape;
                         shape.selected = true;
+                        model.modified();
                         repaint();
                         System.out.println("Hit" + shape);
                         selectMode = true;
-                        break;
+                    }
+                    else if (!hitRotate && !hitScale){
+                        shape.selected = false;
                     }
                 }
             }
@@ -74,10 +73,13 @@ public class CanvasView extends JPanel implements Observer {
                 super.mouseDragged(e);
                 for(ShapeModel shape : model.getShapes()) {
                     if (startMouse != null && shape.selected && hitScale) {
+                        needStore = true;
                         shape.reset((int)(e.getX() - lastMouse.getX()), (int)(e.getY() - lastMouse.getY()));
                     } else if (startMouse != null && shape.selected && hitRotate) {
+                        needStore = true;
                         shape.rotateShape((int) (e.getX() - lastMouse.getX()));
                     } else if (startMouse != null && shape.selected) {
+                        needStore = true;
                         shape.translate((int)(e.getX() - lastMouse.getX()), (int)(e.getY() - lastMouse.getY()));
                     }
 
@@ -94,6 +96,16 @@ public class CanvasView extends JPanel implements Observer {
                     ShapeModel shape = new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
                     shape.type = model.getShape();
                     model.addShape(shape);
+                    model.modified();
+                }
+
+                if (needStore) {
+                    for(ShapeModel shape : model.getShapes()) {
+                        if (shape.selected){
+                            model.endEdit(shape);
+                        }
+                    }
+                    needStore = false;
                 }
 
                 selectMode = false;
@@ -131,16 +143,18 @@ public class CanvasView extends JPanel implements Observer {
         g2.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         for(ShapeModel shape : model.getShapes()) {
-            AffineTransform oldAffine = g2.getTransform();
-            AffineTransform newAffine = shape.generateAffine(oldAffine);
-            g2.setTransform(newAffine);
-            if (shape.selected) {
-                drawSelect(g2, shape);
+            if (!shape.invisible) {
+                AffineTransform oldAffine = g2.getTransform();
+                AffineTransform newAffine = shape.generateAffine(oldAffine);
+                g2.setTransform(newAffine);
+                if (shape.selected) {
+                    drawSelect(g2, shape);
+                }
+                g2.setColor(new Color(66, 66, 66));
+                g2.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.draw(shape.getShape());
+                g2.setTransform(oldAffine);
             }
-            g2.setColor(new Color(66,66,66));
-            g2.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.draw(shape.getShape());
-            g2.setTransform(oldAffine);
         }
     }
 

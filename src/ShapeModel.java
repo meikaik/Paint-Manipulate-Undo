@@ -13,7 +13,12 @@ public class ShapeModel {
     double scaleX = 1, scaleY = 1;
     ShapeType type = null;
 
+    int beforeTranslateX = 0, beforeTranslateY = 0, beforeRotate = 0;
+    double beforeScaleX = 1, beforeScaleY = 1;
+
     boolean selected = false;
+
+    boolean invisible = false;
 
     public ShapeModel(Point sp, Point ep) {
         startPoint = sp;
@@ -25,13 +30,13 @@ public class ShapeModel {
         Point ep = this.endPoint;
         ShapeModel s = new ShapeModel.ShapeFactory().getShape(
                 type, new Point(sp.x + 10, sp.y + 10), new Point(ep.x + 10, ep.y + 10));
-        s.type = this.type;
         s.translateX = this.translateX;
         s.translateY = this.translateY;
         s.rotate = this.rotate;
         s.scaleX = this.scaleX;
         s.scaleY = this.scaleY;
         s.selected = true;
+        s.type = this.type;
         return s;
     }
 
@@ -148,4 +153,5 @@ public class ShapeModel {
             this.shape = shape;
         }
     }
+
 }

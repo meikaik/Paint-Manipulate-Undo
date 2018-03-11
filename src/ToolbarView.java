@@ -33,6 +33,23 @@ public class ToolbarView extends JToolBar implements Observer {
             }
         });
 
+        undo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                model.undo();
+            }
+        });
+        // controller for redo menu item
+        redo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                model.redo();
+            }
+        });
+
+
+        undo.setEnabled(false);
+        redo.setEnabled(false);
+        duplicate.setEnabled(false);
+
         setFloatable(false);
         add(undo);
         add(redo);
@@ -51,6 +68,10 @@ public class ToolbarView extends JToolBar implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        undo.setEnabled(model.canUndo());
+        redo.setEnabled(model.canRedo());
+        duplicate.setEnabled(model.duplicatable());
 
+        System.out.println("Notified");
     }
 }

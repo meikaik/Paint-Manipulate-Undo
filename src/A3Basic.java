@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 
+
 public class A3Basic extends JPanel {
 
     A3Basic() {
@@ -9,6 +10,7 @@ public class A3Basic extends JPanel {
         setLayout(new BorderLayout());
         add(new ToolbarView(model), BorderLayout.PAGE_START);
         add(new CanvasView(model), BorderLayout.CENTER);
+
     }
 
     public static void main(String[] args) {
