@@ -141,7 +141,7 @@ public class DrawingModel extends Observable {
             deselectAll();
             shape.selected = true;
             System.out.println("Model: undo location to " + shape.translateX + "," + shape.translateY + "rotate to" + shape.rotate + "endpoint to" + shape.endPoint);
-            notifyObservers();
+            modified();
         }
 
         public void redo() throws CannotRedoException {
@@ -154,7 +154,7 @@ public class DrawingModel extends Observable {
             deselectAll();
             shape.selected = true;
             System.out.println("Model: undo location to " + shape.translateX + "," + shape.translateY + "rotate to" + shape.rotate + "endpoint to" + shape.endPoint);
-            notifyObservers();
+            modified();
         }
 
     }
@@ -171,7 +171,7 @@ public class DrawingModel extends Observable {
             shape.invisible = true;
             deselectAll();
             System.out.println("Model: undo shape add" );
-            notifyObservers();
+            modified();
         }
 
         public void redo() throws CannotRedoException {
@@ -180,7 +180,7 @@ public class DrawingModel extends Observable {
             deselectAll();
             shape.selected = true;
             System.out.println("Model: redo shape add");
-            notifyObservers();
+            modified();
         }
 
     }

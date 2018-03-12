@@ -113,7 +113,7 @@ public class CanvasView extends JPanel implements Observer {
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
 
-                if (!selectMode) {
+                if (!selectMode && !(Math.hypot(((Point) startMouse).x- ((Point) lastMouse).x, ((Point) startMouse).y- ((Point) lastMouse).y) < 5)) {
                     ShapeModel shape = new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
                     shape.type = model.getShape();
                     shape.selected = true;
