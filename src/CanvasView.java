@@ -113,12 +113,11 @@ public class CanvasView extends JPanel implements Observer {
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
 
-                if (!selectMode && !(Math.hypot(((Point) startMouse).x- ((Point) lastMouse).x, ((Point) startMouse).y- ((Point) lastMouse).y) < 5)) {
+                if (!selectMode && !isTooSmall((Point)startMouse, (Point) lastMouse)) {
                     ShapeModel shape = new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
                     shape.type = model.getShape();
                     shape.selected = true;
                     model.addShape(shape);
-                    model.modified();
                 }
 
                 if (needStore) {
@@ -183,7 +182,7 @@ public class CanvasView extends JPanel implements Observer {
     }
 
     private void drawCurrentShape(Graphics2D g2) {
-        if (selectMode || startMouse == null) {
+        if (selectMode || startMouse == null || isTooSmall((Point) startMouse, (Point) lastMouse)) {
             return;
         }
 
@@ -208,5 +207,9 @@ public class CanvasView extends JPanel implements Observer {
         g2.draw(s);
         g2.fill(s);
         g2.setColor(new Color(66,66,66));
+    }
+
+    public boolean isTooSmall(Point startMouse, Point lastMouse) {
+        return Math.hypot(startMouse.x - lastMouse.x,  startMouse.y - lastMouse.y) < 15;
     }
 }
