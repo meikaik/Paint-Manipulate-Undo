@@ -23,7 +23,7 @@ public class CanvasView extends JPanel implements Observer {
     private boolean needStore = false;
 
 
-    public CanvasView(DrawingModel model) {
+    CanvasView(DrawingModel model) {
         super();
         this.model = model;
 
@@ -57,7 +57,7 @@ public class CanvasView extends JPanel implements Observer {
                 }
 
                 if (!hitRotate && !hitScale && !hitXScale && !hitYScale) {
-                    model.deselectAll();
+                    model.deselectAllShapes();
                 } else {
                     return;
                 }
@@ -66,8 +66,7 @@ public class CanvasView extends JPanel implements Observer {
                 while(itNew.hasPrevious()) {
                     ShapeModel shape = itNew.previous();
                     if (!shape.invisible && startMouse != null && shape.hitTest(startMouse)) {
-                        shape.selected = true;
-                        model.modified();
+                        model.selectShape(shape);
                         repaint();
                         selectMode = true;
                         break;
@@ -81,20 +80,24 @@ public class CanvasView extends JPanel implements Observer {
                 for(ShapeModel shape : model.getShapes()) {
                     if (startMouse != null && shape.selected && hitScale) {
                         needStore = true;
-                        shape.reset((int)(e.getX() - lastMouse.getX()), (int)(e.getY() - lastMouse.getY()));
+                        shape.reset(
+                                (e.getX() - lastMouse.getX()),
+                                (e.getY() - lastMouse.getY()));
                     } else if (startMouse != null && shape.selected && hitRotate) {
                         needStore = true;
-                        shape.rotateShape((int) (e.getX() - lastMouse.getX()));
+                        shape.rotateShape(e.getX() - lastMouse.getX());
                     } else if (startMouse != null && shape.selected && hitXScale) {
                         needStore = true;
-                        shape.reset((int)(e.getX() - lastMouse.getX()), 0);
+                        shape.reset((e.getX() - lastMouse.getX()), 0);
                     } else if (startMouse != null && shape.selected && hitYScale) {
                         needStore = true;
-                        shape.reset(0, (int)(e.getY() - lastMouse.getY()));
+                        shape.reset(0, (e.getY() - lastMouse.getY()));
                     }
                     else if (startMouse != null && shape.selected) {
                         needStore = true;
-                        shape.translate((int)(e.getX() - lastMouse.getX()), (int)(e.getY() - lastMouse.getY()));
+                        shape.translate(
+                                (e.getX() - lastMouse.getX()),
+                                (e.getY() - lastMouse.getY()));
                     }
 
                 }
@@ -107,7 +110,10 @@ public class CanvasView extends JPanel implements Observer {
                 super.mouseReleased(e);
 
                 if (!selectMode && !isTooSmall((Point)startMouse, (Point) lastMouse)) {
-                    ShapeModel shape = new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
+                    ShapeModel shape =
+                            new ShapeModel.
+                                    ShapeFactory().
+                                    getShape(model.getShape(), (Point) startMouse, (Point) lastMouse);
                     shape.type = model.getShape();
                     shape.selected = true;
                     model.addShape(shape);
@@ -182,7 +188,9 @@ public class CanvasView extends JPanel implements Observer {
         g2.setColor(new Color(66,66,66));
         g2.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
-        g2.draw(new ShapeModel.ShapeFactory().getShape(model.getShape(), (Point) startMouse, (Point) lastMouse).getShape());
+        g2.draw(new ShapeModel.
+                ShapeFactory().
+                getShape(model.getShape(), (Point) startMouse, (Point) lastMouse).getShape());
     }
 
     private void drawSelect(Graphics2D g2, ShapeModel shape) {
@@ -202,7 +210,7 @@ public class CanvasView extends JPanel implements Observer {
         g2.setColor(new Color(66,66,66));
     }
 
-    public boolean isTooSmall(Point startMouse, Point lastMouse) {
+    private boolean isTooSmall(Point startMouse, Point lastMouse) {
         return Math.hypot(startMouse.x - lastMouse.x,  startMouse.y - lastMouse.y) < 15;
     }
 }

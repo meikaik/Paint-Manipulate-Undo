@@ -7,18 +7,34 @@ public class DrawingModel extends Observable {
 
     private List<ShapeModel> shapes = new ArrayList<>();
 
-    UndoManager undoManager = new UndoManager();
+    private ShapeModel.ShapeType shapeType = ShapeModel.ShapeType.Rectangle;
 
-
-    ShapeModel.ShapeType shapeType = ShapeModel.ShapeType.Rectangle;
+    private UndoManager undoManager = new UndoManager();
 
     public ShapeModel.ShapeType getShape() {
         return shapeType;
     }
 
+    DrawingModel() { }
 
-    ShapeUndoable shapeUndoable;
-    ShapeAddDelete shapeAddDelete;
+    public List<ShapeModel> getShapes() {
+        return Collections.unmodifiableList(shapes);
+    }
+
+    public void setShape(ShapeModel.ShapeType shapeType) {
+        this.shapeType = shapeType;
+    }
+
+    public void deselectAllShapes() {
+        for(ShapeModel shape : shapes) {
+            shape.selected = false;
+        }
+    }
+
+    public void selectShape(ShapeModel s) {
+        s.selected = true;
+        modified();
+    }
 
     public boolean isDuplicatable() {
         for(ShapeModel shape : shapes) {
@@ -29,14 +45,15 @@ public class DrawingModel extends Observable {
         return false;
     }
 
-    public void deselectAll() {
-        for(ShapeModel shape : shapes) {
-            shape.selected = false;
-        }
+    public void addShape(ShapeModel shape) {
+        this.shapes.add(shape);
+        ShapeAddDelete shapeAddDelete = new ShapeAddDelete(shape);
+        undoManager.addEdit(shapeAddDelete);
+        modified();
     }
 
     public void endEdit(ShapeModel shape){
-        shapeUndoable = new ShapeUndoable(shape);
+        ShapeUndoable shapeUndoable = new ShapeUndoable(shape);
         undoManager.addEdit(shapeUndoable);
         shape.beforeTranslateX = shape.translateX;
         shape.beforeTranslateY = shape.translateY;
@@ -45,28 +62,13 @@ public class DrawingModel extends Observable {
         modified();
     }
 
-    public void setShape(ShapeModel.ShapeType shapeType) {
-        this.shapeType = shapeType;
-    }
-
-    public DrawingModel() { }
-
-    public List<ShapeModel> getShapes() {
-        return Collections.unmodifiableList(shapes);
-    }
-
-    public void addShape(ShapeModel shape) {
-        this.shapes.add(shape);
-        shapeAddDelete = new ShapeAddDelete(shape);
-        undoManager.addEdit(shapeAddDelete);
-        modified();
-    }
-
     public void undo(){
         if(undoManager.canUndo()){
             try {
                 undoManager.undo();
             } catch (CannotRedoException ex) {
+                System.out.println("Exception: " + ex);
+                ex.printStackTrace();
             }
         }
     }
@@ -76,15 +78,11 @@ public class DrawingModel extends Observable {
             try {
                 undoManager.redo();
             } catch (CannotRedoException ex) {
+                System.out.println("Exception: " + ex);
+                ex.printStackTrace();
             }
         }
     }
-
-    public void modified() {
-        this.setChanged();
-        this.notifyObservers();
-    }
-
 
     public boolean canUndo() {
         return undoManager.canUndo();
@@ -94,25 +92,28 @@ public class DrawingModel extends Observable {
         return undoManager.canRedo();
     }
 
+    private void modified() {
+        this.setChanged();
+        this.notifyObservers();
+    }
+
     public class ShapeUndoable extends AbstractUndoableEdit{
 
         ShapeModel shape;
 
         // position for undo
-        public int p_translateX;
-        public int p_translateY;
-        public int p_rotate;
-        public Point p_endPoint;
+        double p_translateX;
+        double p_translateY;
+        double p_rotate;
+        Point p_endPoint;
 
         // position for redo
-        public int n_translateX;
-        public int n_translateY;
-        public int n_rotate;
-        public Point n_endPoint;
+        double n_translateX;
+        double n_translateY;
+        double n_rotate;
+        Point n_endPoint;
 
-
-
-        public ShapeUndoable(ShapeModel newShape){
+        ShapeUndoable(ShapeModel newShape){
             shape = newShape;
             // position for undo
             p_translateX = newShape.beforeTranslateX;
@@ -126,7 +127,6 @@ public class DrawingModel extends Observable {
             n_endPoint = new Point(newShape.endPoint.x, newShape.endPoint.y);
         }
 
-
         public void undo() throws CannotRedoException {
             super.undo();
             shape.translateX = p_translateX;
@@ -134,7 +134,7 @@ public class DrawingModel extends Observable {
             shape.rotate = p_rotate;
             shape.endPoint = new Point(p_endPoint.x, p_endPoint.y);
             shape.reset(0, 0);
-            deselectAll();
+            deselectAllShapes();
             shape.selected = true;
             modified();
         }
@@ -146,35 +146,32 @@ public class DrawingModel extends Observable {
             shape.rotate = n_rotate;
             shape.endPoint = new Point(n_endPoint.x, n_endPoint.y);
             shape.reset(0, 0);
-            deselectAll();
+            deselectAllShapes();
             shape.selected = true;
             modified();
         }
-
     }
 
     public class ShapeAddDelete extends AbstractUndoableEdit{
         ShapeModel shape;
-        public ShapeAddDelete(ShapeModel newShape){
+
+        ShapeAddDelete(ShapeModel newShape){
             shape = newShape;
         }
-
 
         public void undo() throws CannotRedoException {
             super.undo();
             shape.invisible = true;
-            deselectAll();
+            deselectAllShapes();
             modified();
         }
 
         public void redo() throws CannotRedoException {
             super.redo();
             shape.invisible = false;
-            deselectAll();
+            deselectAllShapes();
             shape.selected = true;
             modified();
         }
-
     }
-
 }

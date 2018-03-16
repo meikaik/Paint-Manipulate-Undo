@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class A3Basic extends JPanel {
 
-    A3Basic() {
+    private A3Basic() {
         DrawingModel model = new DrawingModel();
 
         setLayout(new BorderLayout());

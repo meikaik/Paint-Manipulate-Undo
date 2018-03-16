@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
 public class EllipseModel extends ShapeModel {
+
     public EllipseModel(Point startPoint, Point endPoint) {
         super(startPoint, endPoint);
         Rectangle rect = new java.awt.Rectangle(startPoint);
@@ -10,7 +11,7 @@ public class EllipseModel extends ShapeModel {
     }
 
     @Override
-    public void reset(int dx, int dy) {
+    public void reset(double dx, double dy) {
         int height = endPoint.y - startPoint.y;
         int width = endPoint.x - startPoint.x;
         ((Ellipse2D)this.shape).setFrame(startPoint.x, startPoint.y, width + dx, height + dy);

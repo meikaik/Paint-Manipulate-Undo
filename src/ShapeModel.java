@@ -2,23 +2,22 @@ import java.awt.*;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.lang.reflect.Constructor;
-
 import java.awt.geom.AffineTransform;
 
 public class ShapeModel {
     Shape shape;
     Point startPoint;
     Point endPoint;
-    int translateX = 0, translateY = 0, rotate = 0;
+    double translateX = 0, translateY = 0, rotate = 0;
     ShapeType type = null;
 
-    int beforeTranslateX = 0, beforeTranslateY = 0, beforeRotate = 0;
+    double beforeTranslateX = 0, beforeTranslateY = 0, beforeRotate = 0;
     Point beforeEndPoint;
 
     boolean selected = false;
     boolean invisible = false;
 
-    public ShapeModel(Point sp, Point ep) {
+    ShapeModel(Point sp, Point ep) {
         startPoint = sp;
         endPoint = ep;
         beforeEndPoint = ep;
@@ -41,7 +40,7 @@ public class ShapeModel {
         return s;
     }
 
-    public Point getMidPoint() {
+    private Point getMidPoint() {
         return new Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2);
     }
 
@@ -49,60 +48,56 @@ public class ShapeModel {
         return shape;
     }
 
-    public void translate(int dx, int dy) {
+    public void translate(double dx, double dy) {
         translateX += dx;
         translateY += dy;
     }
 
-    public void reset(int dx, int dy) {
+    public void reset(double dx, double dy) {
     }
 
     public Shape rotateHandle() {
         int yMin = Math.min(this.startPoint.y, this.endPoint.y);
         Point midpoint = this.getMidPoint();
-        Shape s = new ShapeModel.ShapeFactory().getShape(
+        return new ShapeModel.ShapeFactory().getShape(
                 ShapeModel.ShapeType.Ellipse,
                 new Point(midpoint.x - 5, yMin - 20),
                 new Point(midpoint.x + 5, yMin - 10)
         ).getShape();
-        return s;
     }
 
-    public void rotateShape(int rotatee) {
-        rotate += rotatee;
+    public void rotateShape(double newRotate) {
+        rotate += newRotate;
     }
 
     public Shape scaleHandle() {
         int yMax = Math.max(this.startPoint.y, this.endPoint.y);
         int xMax = Math.max(this.startPoint.x, this.endPoint.x);
-        Shape s = new ShapeModel.ShapeFactory().getShape(
+        return new ShapeModel.ShapeFactory().getShape(
                 ShapeModel.ShapeType.Rectangle,
                 new Point(xMax -  5, yMax - 5),
                 new Point(xMax +  5, yMax + 5)
         ).getShape();
-        return s;
     }
 
     public Shape XScaleHandle() {
         Point midpoint = this.getMidPoint();
         int xMax = Math.max(this.startPoint.x, this.endPoint.x);
-        Shape s = new ShapeModel.ShapeFactory().getShape(
+        return new ShapeModel.ShapeFactory().getShape(
                 ShapeModel.ShapeType.Rectangle,
                 new Point(xMax -  5, midpoint.y - 5),
                 new Point(xMax +  5, midpoint.y + 5)
         ).getShape();
-        return s;
     }
 
     public Shape YScaleHandle() {
         Point midpoint = this.getMidPoint();
         int yMax = Math.max(this.startPoint.y, this.endPoint.y);
-        Shape s = new ShapeModel.ShapeFactory().getShape(
+        return new ShapeModel.ShapeFactory().getShape(
                 ShapeModel.ShapeType.Rectangle,
                 new Point(midpoint.x -  5, yMax - 5),
                 new Point(midpoint.x +  5, yMax + 5)
         ).getShape();
-        return s;
     }
 
     public boolean rotateHitTest(Point2D p) {
@@ -130,7 +125,7 @@ public class ShapeModel {
         return this.getShape().contains(mouseTransformed);
     }
 
-    public Point transformMouse(Point2D p) {
+    Point transformMouse(Point2D p) {
         Point mouseTransformed = new Point();
         try {
             AffineTransform newAffine = this.generateAffine(null);
@@ -167,8 +162,7 @@ public class ShapeModel {
                 Class<? extends ShapeModel> clazz = shapeType.shape;
                 Constructor<? extends ShapeModel> constructor = clazz.getConstructor(Point.class, Point.class);
 
-                ShapeModel newShape = constructor.newInstance(startPoint, endPoint);
-                return newShape;
+                return constructor.newInstance(startPoint, endPoint);
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
