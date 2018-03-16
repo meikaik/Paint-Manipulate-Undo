@@ -16,7 +16,6 @@ public class ShapeModel {
     Point beforeEndPoint;
 
     boolean selected = false;
-
     boolean invisible = false;
 
     public ShapeModel(Point sp, Point ep) {
@@ -35,6 +34,10 @@ public class ShapeModel {
         s.rotate = this.rotate;
         s.selected = true;
         s.type = this.type;
+        s.beforeTranslateX = this.translateX;
+        s.beforeTranslateY = this.translateY;
+        s.beforeRotate = this.rotate;
+        s.beforeEndPoint = new Point(this.endPoint.x, this.endPoint.y);
         return s;
     }
 

@@ -43,7 +43,6 @@ public class DrawingModel extends Observable {
         shape.beforeEndPoint = new Point(shape.endPoint.x, shape.endPoint.y);
         shape.beforeRotate = shape.rotate;
         modified();
-        System.out.println("Edited shape!");
     }
 
     public void setShape(ShapeModel.ShapeType shapeType) {
@@ -61,7 +60,6 @@ public class DrawingModel extends Observable {
         shapeAddDelete = new ShapeAddDelete(shape);
         undoManager.addEdit(shapeAddDelete);
         modified();
-        System.out.println("added new shape!");
     }
 
     public void undo(){
@@ -70,7 +68,6 @@ public class DrawingModel extends Observable {
                 undoManager.undo();
             } catch (CannotRedoException ex) {
             }
-            modified();
         }
     }
 
@@ -80,7 +77,6 @@ public class DrawingModel extends Observable {
                 undoManager.redo();
             } catch (CannotRedoException ex) {
             }
-            modified();
         }
     }
 
@@ -116,18 +112,18 @@ public class DrawingModel extends Observable {
 
 
 
-        public ShapeUndoable(ShapeModel shapee){
-            shape = shapee;
+        public ShapeUndoable(ShapeModel newShape){
+            shape = newShape;
             // position for undo
-            p_translateX = shapee.beforeTranslateX;
-            p_translateY = shapee.beforeTranslateY;
-            p_rotate = shapee.beforeRotate;
-            p_endPoint = new Point(shapee.beforeEndPoint.x, shapee.beforeEndPoint.y);
+            p_translateX = newShape.beforeTranslateX;
+            p_translateY = newShape.beforeTranslateY;
+            p_rotate = newShape.beforeRotate;
+            p_endPoint = new Point(newShape.beforeEndPoint.x, newShape.beforeEndPoint.y);
             // position for redo
-            n_translateX = shapee.translateX;
-            n_translateY = shapee.translateY;
-            n_rotate = shapee.rotate;
-            n_endPoint = new Point(shapee.endPoint.x, shapee.endPoint.y);
+            n_translateX = newShape.translateX;
+            n_translateY = newShape.translateY;
+            n_rotate = newShape.rotate;
+            n_endPoint = new Point(newShape.endPoint.x, newShape.endPoint.y);
         }
 
 
@@ -140,7 +136,6 @@ public class DrawingModel extends Observable {
             shape.reset(0, 0);
             deselectAll();
             shape.selected = true;
-            System.out.println("Model: undo location to " + shape.translateX + "," + shape.translateY + "rotate to" + shape.rotate + "endpoint to" + shape.endPoint);
             modified();
         }
 
@@ -153,7 +148,6 @@ public class DrawingModel extends Observable {
             shape.reset(0, 0);
             deselectAll();
             shape.selected = true;
-            System.out.println("Model: undo location to " + shape.translateX + "," + shape.translateY + "rotate to" + shape.rotate + "endpoint to" + shape.endPoint);
             modified();
         }
 
@@ -161,8 +155,8 @@ public class DrawingModel extends Observable {
 
     public class ShapeAddDelete extends AbstractUndoableEdit{
         ShapeModel shape;
-        public ShapeAddDelete(ShapeModel shapee){
-            shape = shapee;
+        public ShapeAddDelete(ShapeModel newShape){
+            shape = newShape;
         }
 
 
@@ -170,7 +164,6 @@ public class DrawingModel extends Observable {
             super.undo();
             shape.invisible = true;
             deselectAll();
-            System.out.println("Model: undo shape add" );
             modified();
         }
 
@@ -179,7 +172,6 @@ public class DrawingModel extends Observable {
             shape.invisible = false;
             deselectAll();
             shape.selected = true;
-            System.out.println("Model: redo shape add");
             modified();
         }
 

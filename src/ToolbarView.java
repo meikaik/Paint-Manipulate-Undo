@@ -19,7 +19,6 @@ public class ToolbarView extends JToolBar implements Observer {
         duplicate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Duplicate button pressed!");
                 ShapeModel selected = null;
                 for(ShapeModel shape : model.getShapes()) {
                     if (shape.selected) {
@@ -71,7 +70,5 @@ public class ToolbarView extends JToolBar implements Observer {
         undo.setEnabled(model.canUndo());
         redo.setEnabled(model.canRedo());
         duplicate.setEnabled(model.isDuplicatable());
-
-        System.out.println("Notified");
     }
 }
